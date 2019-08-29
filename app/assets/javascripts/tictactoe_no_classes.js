@@ -1,3 +1,12 @@
+// class CurrentGame {
+//   constructor(turn, gameId) {
+//     this.turn = turn;
+//     this.gameId = gameId;
+//   }
+// }
+//
+// let game = new CurrentGame(0)
+
 $(document).ready(function() {
   attachListeners()
 })

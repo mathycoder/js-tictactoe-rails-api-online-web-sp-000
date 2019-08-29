@@ -5,18 +5,26 @@ $(document).ready(function() {
 var turn = 0;
 var gameId
 
+class CurrentGame {
+  constructor(turn, gameId) {
+    this.turn = turn;
+    this.gameId = gameId;
+  }
+}
+
+let game = new CurrentGame(0)
+
 function saveGame() {
-  //unsaved...not sure how to tell yet
   const data = {state: currentBoard()}
-  if (gameId === undefined){
+  if (game.gameId === undefined){
     $.post('/games', data)
       .done(function(json) {
-        gameId = json.data.id
+        game.gameId = json.data.id
       })
   } else {
     $.ajax({
        type: 'PATCH',
-       url: `/games/${gameId}`,
+       url: `/games/${game.gameId}`,
        data: data,
        processData: false,
        contentType: 'application/merge-patch+json',
@@ -26,7 +34,7 @@ function saveGame() {
 }
 
 function player() {
-  return turn % 2 === 0 ? 'X' : 'O'
+  return game.turn % 2 === 0 ? 'X' : 'O'
 }
 
 function updateState(td) {
@@ -67,9 +75,9 @@ function checkWinner() {
 }
 
 function doTurn(el) {
-  if (turn < 8) {
+  if (game.turn < 8) {
     updateState(el)
-    turn += 1
+    game.turn += 1
     if (checkWinner()) {
       saveGame()
       resetGame()
@@ -82,8 +90,8 @@ function doTurn(el) {
 }
 
 function resetGame() {
-  turn = 0
-  gameId = undefined
+  game.turn = 0
+  game.gameId = undefined
   for(let i=0; i<9; i++) {
     $('td')[i].innerText = ""
   }
@@ -91,7 +99,7 @@ function resetGame() {
 
 function attachListeners() {
   $('td').click(function() {
-    if (this.innerText === "" && turn < 8 && !checkWinner()) {
+    if (this.innerText === "" && game.turn < 8 && !checkWinner()) {
       doTurn(this)
     }
   })
@@ -122,7 +130,7 @@ function attachListeners() {
 function loadGame() {
   $.get("/games/" + this.id, function(json) {
     loadBoard(json.data.attributes.state)
-    gameId = json.data.id
+    game.gameId = json.data.id
   })
 }
 
@@ -132,7 +140,7 @@ function loadBoard(board) {
   for (i=0; i<9; i++) {
     $('td')[i].innerText = board[i]
     if (board[i] !== "") {
-      turn++
+      game.turn++
     }
   }
 }
